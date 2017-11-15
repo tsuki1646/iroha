@@ -15,35 +15,19 @@
  * limitations under the License.
  */
 
-#ifndef IROHA_SHARED_MODEL_STUB_HASH_HPP
-#define IROHA_SHARED_MODEL_STUB_HASH_HPP
-
-#include "cryptography/hash.hpp"
+#include "cryptography/ed25519_sha3_impl/signer.hpp"
+#include "cryptography/ed25519_sha3_impl/internal/ed25519_impl.hpp"
 
 namespace shared_model {
   namespace crypto {
-
-    class StubHash : public Hash {
-     public:
-      const std::string &blob() const override {
-        return string;
-      }
-
-      const std::string &hex() const override {
-        return string;
-      }
-
-      size_t size() const override {
-        return 0;
-      }
-
-      ModelType *copy() const override {
-        return new StubHash;
-      }
-
-      const std::string string = "";
-    };
+    Signed Signer::sign(const Blob &blob, const Keypair &keypair) const {
+      return Signed(
+          iroha::sign(
+              blob.blob(),
+              keypair.publicKey().makeOldModel<PublicKey::OldPublicKeyType>(),
+              keypair.privateKey()
+                  .makeOldModel<PrivateKey::OldPrivateKeyType>())
+              .to_string());
+    }
   }  // namespace crypto
 }  // namespace shared_model
-
-#endif  // IROHA_SHARED_MODEL_STUB_HASH_HPP

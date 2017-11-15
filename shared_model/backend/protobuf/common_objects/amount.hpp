@@ -19,7 +19,7 @@
 #define IROHA_PROTO_AMOUNT_HPP
 
 #include <numeric>
-#include "cryptography/stub_hash.hpp"
+#include "cryptography/ed25519_sha3_impl/hash_provider.hpp"
 #include "interfaces/common_objects/amount.hpp"
 #include "primitive.pb.h"
 
@@ -32,14 +32,17 @@ namespace shared_model {
               const auto offset = 64u;
               auto times = 3u;
               boost::multiprecision::uint256_t result;
-              result |= proto_amount_.value().first()  << offset * times--;
+              result |= proto_amount_.value().first() << offset * times--;
               result |= proto_amount_.value().second() << offset * times--;
-              result |= proto_amount_.value().third()  << offset * times--;
+              result |= proto_amount_.value().third() << offset * times--;
               result |= proto_amount_.value().fourth() << offset * times--;
               return result;
             }),
             precision_([this] { return proto_amount_.precision(); }),
-            hash_([this] { return crypto::StubHash(); }) {}
+            hash_([this] {
+              return crypto::HashProvider().sha3_256(
+                  crypto::BlobImpl(proto_amount_.SerializeAsString()));
+            }) {}
 
       const boost::multiprecision::uint256_t &intValue() const override {
         return multiprecision_repr.get();
@@ -61,7 +64,7 @@ namespace shared_model {
       // lazy
       Lazy<boost::multiprecision::uint256_t> multiprecision_repr;
       Lazy<uint8_t> precision_;
-      Lazy<crypto::StubHash> hash_;
+      Lazy<crypto::Hash> hash_;
     };
 
   }  // namespace proto

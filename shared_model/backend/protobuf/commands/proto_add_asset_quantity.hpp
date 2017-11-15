@@ -18,11 +18,12 @@
 #ifndef IROHA_PROTO_ADD_ASSET_QUANTITY_HPP
 #define IROHA_PROTO_ADD_ASSET_QUANTITY_HPP
 
+#include "interfaces/common_objects/types.hpp"
+
+#include "backend/protobuf/common_objects/amount.hpp"
 #include "commands.pb.h"
-#include "cryptography/stub_hash.hpp"
 #include "interfaces/commands/add_asset_quantity.hpp"
 #include "utils/lazy_initializer.hpp"
-#include "backend/protobuf/common_objects/amount.hpp"
 
 namespace shared_model {
   namespace proto {
@@ -68,8 +69,8 @@ namespace shared_model {
               return proto::Amount(this->add_asset_quantity_.amount());
             }),
             hash_([this] {
-              // TODO 10/11/2017 muratovv replace with effective implementation
-              return crypto::StubHash();
+              return crypto::HashProvider().sha3_256(
+                  crypto::BlobImpl(add_asset_quantity_.SerializeAsString()));
             }) {}
 
       // ------------------------------| fields |-------------------------------
@@ -79,7 +80,7 @@ namespace shared_model {
 
       // lazy
       Lazy<proto::Amount> amount_;
-      Lazy<crypto::StubHash> hash_;
+      Lazy<crypto::Hash> hash_;
     };
 
   }  // namespace proto
