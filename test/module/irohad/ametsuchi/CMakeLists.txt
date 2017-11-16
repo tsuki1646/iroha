@@ -16,6 +16,12 @@ target_link_libraries(flat_file_test
     libs_common
     )
 
+addtest(yuna_storage_test yuna_storage_test.cpp)
+target_link_libraries(yuna_storage_test
+    ametsuchi
+    libs_common
+    )
+
 add_library(ametsuchi_fixture INTERFACE)
 target_link_libraries(ametsuchi_fixture INTERFACE
     pqxx
